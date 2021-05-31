@@ -235,6 +235,11 @@ function _knitro(
   else
     Δt = real_time = t[2]
   end
+  gx = KNITRO.KN_get_objgrad_values(kc)[2]
+  # @show KNITRO.KN_get_objgrad_nnz(kc)
+  # @show norm(KNITRO.KN_get_objgrad_values(kc)[2], Inf)
+  # @show norm(grad(nlp, x), Inf)
+  # https://github.com/jump-dev/KNITRO.jl/blob/master/src/kn_attributes.jl
 
   KNITRO.KN_reset_params_to_defaults(kc)
   KNITRO.KN_free(kc)
@@ -251,7 +256,7 @@ function _knitro(
     multipliers = lambda_[1:m],
     multipliers_L = lambda_[(m + 1):(m + n)],  # don't know how to get those separately
     multipliers_U = eltype(x)[],
-    solver_specific = Dict(:internal_msg => nStatus, :real_time => real_time),
+    solver_specific = Dict(:internal_msg => nStatus, :real_time => real_time, :gx => gx),
   )
 end
 

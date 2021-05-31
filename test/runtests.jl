@@ -10,6 +10,7 @@ function test_unconstrained()
   stats = knitro(nlp, outlev = 0)
   @test isapprox(stats.solution, [1.0; 1.0], rtol = 1e-6)
   @test stats.status == :first_order
+  @test grad(nlp, stats.solution) == stats.solver_specific[:gx]
 end
 
 function test_qp()
@@ -19,6 +20,7 @@ function test_qp()
   @test isapprox(stats.solution, [-1.4; 2.4], rtol = 1e-6)
   @test stats.iter == 1
   @test stats.status == :first_order
+  @test grad(nlp, stats.solution) == stats.solver_specific[:gx]
 end
 
 function test_constrained()
@@ -26,6 +28,7 @@ function test_constrained()
   stats = knitro(nlp, outlev = 0)
   @test isapprox(stats.solution, [0.11021046172567574, 0.9939082725775202], rtol = 1e-6)
   @test stats.status == :first_order
+  @test grad(nlp, stats.solution) == stats.solver_specific[:gx]
 
   # test with a good primal-dual initial guess
   x0 = copy(stats.solution)
@@ -35,6 +38,7 @@ function test_constrained()
   @test stats.status == :first_order
   @test isapprox(stats.solution, [0.11021046172567574, 0.9939082725775202], rtol = 1e-6)
   @test stats.iter == 2
+  @test grad(nlp, stats.solution) == stats.solver_specific[:gx]
 end
 
 function test_with_params()
@@ -42,6 +46,7 @@ function test_with_params()
   stats = knitro(nlp, opttol = 1e-12, presolve = 0, outlev = 0)
   @test isapprox(stats.solution, [1.0; 1.0], rtol = 1e-6)
   @test stats.status == :first_order
+  @test grad(nlp, stats.solution) == stats.solver_specific[:gx]
 end
 
 function test_with_callback()
@@ -66,6 +71,7 @@ function test_maximize()
   @test isapprox(stats.objective, 1.0, rtol = 1e-6)
   @test isapprox(stats.multipliers_L, -ones(1), atol = 1e-6)
   @test stats.status == :first_order
+  @test grad(nlp, stats.solution) == stats.solver_specific[:gx]
 end
 
 function test_unconstrained_nls()
