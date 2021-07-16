@@ -51,6 +51,13 @@ function KnitroSolver(
     ucon = copy(nlp.meta.ucon)
     ucon[uconinf] .= KNITRO.KN_INFINITY
   end
+  if nlp.meta.nlin > 0
+    @show nlp.meta.lin
+    jac_lin = jac(nlp, nlp.meta.x0)
+    for klin in nlp.meta.lin 
+     KNITRO.KN_add_con_linear_struct(kc, Int32(klin - 1), Int32.(0:(n-1)), jac_lin[klin, :])
+    end
+  end
   KNITRO.KN_set_con_lobnds(kc, lcon)
   KNITRO.KN_set_con_upbnds(kc, ucon)
 
