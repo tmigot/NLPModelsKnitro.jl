@@ -51,8 +51,14 @@ function KnitroSolver(
     ucon = copy(nlp.meta.ucon)
     ucon[uconinf] .= KNITRO.KN_INFINITY
   end
-  KNITRO.KN_set_con_lobnds(kc, lcon)
-  KNITRO.KN_set_con_upbnds(kc, ucon)
+  if length(nlp.meta.jfix) > 0
+    # lcon[jfix] == ucon[jfix] and knitro is based 0 with Int32 indices
+    KNITRO.KN_set_con_eqbnds(kc, Int32.(nlp.meta.jfix .- 1), lcon[nlp.meta.jfix])
+  end
+  if length(nlp.meta.jfix) < m
+    KNITRO.KN_set_con_lobnds(kc, lcon[setdiff(1:m, nlp.meta.jfix)])
+    KNITRO.KN_set_con_upbnds(kc, ucon[setdiff(1:m, nlp.meta.jfix)])
+  end
 
   # set primal and dual initial guess
   kwargs = Dict(kwargs)
